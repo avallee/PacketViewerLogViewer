@@ -15,6 +15,8 @@ using System.Drawing;
 using System.Diagnostics;
 using PacketViewerLogViewer.PVLVHelper;
 using PacketViewerLogViewer.PacketSpecial;
+using SharpPcap;
+using SharpPcap.LibPcap;
 
 namespace PacketViewerLogViewer.Packets
 {
@@ -126,7 +128,7 @@ namespace PacketViewerLogViewer.Packets
 
     public enum PacketLogTypes { Unknown, Outgoing, Incoming }
     public enum FilterType { Off, HidePackets, ShowPackets, AllowNone };
-    public enum PacketLogFileFormats { Unknown = 0, WindowerPacketViewer = 1, AshitaPacketeer = 2, PacketDB = 3 }
+    public enum PacketLogFileFormats { Unknown = 0, WindowerPacketViewer = 1, AshitaPacketeer = 2, PacketDB = 3, PCap = 4 }
 
     public static class String6BitEncodeKeys
     {
@@ -1096,6 +1098,8 @@ namespace PacketViewerLogViewer.Packets
                 expectedLogType = PacketLogFileFormats.AshitaPacketeer;
             if ((expectedLogType == PacketLogFileFormats.Unknown) && (Path.GetExtension(fn) == ".sqlite"))
                 expectedLogType = PacketLogFileFormats.PacketDB;
+            if ((expectedLogType == PacketLogFileFormats.Unknown) && (Path.GetExtension(fn) == ".pcap"))
+                expectedLogType = PacketLogFileFormats.PCap;
 
             if ((expectedLogType == PacketLogFileFormats.WindowerPacketViewer) || (expectedLogType == PacketLogFileFormats.AshitaPacketeer))
             {
@@ -1121,6 +1125,11 @@ namespace PacketViewerLogViewer.Packets
             if (expectedLogType == PacketLogFileFormats.PacketDB)
             {
                 return LoadFromSQLite3(fileName);
+            }
+            else
+            if (expectedLogType == PacketLogFileFormats.PCap)
+            {
+                return LoadFromWireShark(fileName);
             }
             else
             {
@@ -1452,6 +1461,123 @@ namespace PacketViewerLogViewer.Packets
                 firstPacketTime = PacketDataList[0].TimeStamp;
             return true;
         }
+
+        /// <summary>
+        /// Prints the source and dest MAC addresses of each received Ethernet frame
+        /// </summary>
+        private void device_OnPacketArrival(object sender, CaptureEventArgs e)
+        {
+            if (e.Packet.LinkLayerType == PacketDotNet.LinkLayers.Ethernet)
+            {
+                var packet = PacketDotNet.Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data);
+                var ethernetPacket = (PacketDotNet.EthernetPacket)packet;
+                //var ipPacket = PacketDotNet.IPPacket.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data);
+                // We only handle IP stuff
+                if ((ethernetPacket.Type != PacketDotNet.EthernetPacketType.IPv4) && (ethernetPacket.Type != PacketDotNet.EthernetPacketType.IPv6))
+                    return;
+
+                PacketData pd = new PacketData();
+                pd.TimeStamp = e.Packet.Timeval.Date;
+                pd.VirtualTimeStamp = pd.TimeStamp;
+                pd.OriginalHeaderText = "Capture data: " + ethernetPacket.SourceHwAddress.ToString() + " => " + ethernetPacket.DestinationHwAddress.ToString();
+                pd.HeaderText = pd.OriginalHeaderText;
+                pd.PacketLogType = PacketLogTypes.Incoming;
+                byte[] data = ethernetPacket.Bytes ;
+                // byte[] data = ethernetPacket.PayloadPacket.PayloadPacket.PayloadData;
+
+                // byte[] data = new byte[ethernetPacket.Bytes.Length - ethernetPacket.HeaderData.Length];
+                // Array.Copy(ethernetPacket.Bytes, ethernetPacket.HeaderData.Length, data, 0, ethernetPacket.Bytes.Length - ethernetPacket.HeaderData.Length);
+                if ((data != null) && (data.Length >= 4))
+                    pd.RawBytes.AddRange(data.ToArray());
+
+                if (pd.CompileData(PacketLogFileFormats.PCap))
+                {
+                    pd.CompileSpecial(this);
+
+                    if (IsPreParsed)
+                    {
+                        pd.PP = new PacketParser(pd.PacketID, pd.PacketLogType);
+                        pd.PP.AssignPacket(pd);
+                        pd.PP.ParseData("-");
+                    }
+                    PacketDataList.Add(pd);
+
+                    if (pd.PacketLogType == PacketLogTypes.Outgoing)
+                    {
+                        if (ContainsPacketsOut.IndexOf(pd.PacketID) < 0)
+                            ContainsPacketsOut.Add(pd.PacketID);
+                    }
+                    else
+                    if (pd.PacketLogType == PacketLogTypes.Incoming)
+                    {
+                        if (ContainsPacketsIn.IndexOf(pd.PacketID) < 0)
+                            ContainsPacketsIn.Add(pd.PacketID);
+                    }
+                }
+
+                /*
+                Console.WriteLine("At: {1}:{2}: MAC:{3} -> MAC:{4}",
+                                  e.Packet.Timeval.Date.ToString(),
+                                  e.Packet.Timeval.Date.Millisecond,
+                                  ethernetPacket.SourceHwAddress,
+                                  ethernetPacket.DestinationHwAddress);
+                Console.WriteLine(BitConverter.ToString(e.Packet.Data).Replace("-", ""));
+                Console.WriteLine();
+                */
+            }
+        }
+
+        public bool LoadFromWireShark(string pcapFileName)
+        {
+            IsPreParsed = Properties.Settings.Default.PreParseData;
+            using (LoadingForm loadform = new LoadingForm(MainForm.thisMainForm))
+            {
+                try
+                {
+                    loadform.Text = "Loading capture file";
+                    loadform.Show();
+                    loadform.pb.Minimum = 0;
+                    loadform.pb.Maximum = 100000;
+                    loadform.pb.Step = 100;
+
+
+                    ICaptureDevice device;
+                    try
+                    {
+                        // Get an offline device
+                        device = new CaptureFileReaderDevice(pcapFileName);
+
+                        // Open the device
+                        device.Open();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Caught exception when opening file" + e.ToString());
+                        return false;
+                    }
+
+                    // Register our handler function to the 'packet arrival' event
+                    device.OnPacketArrival +=
+                        new PacketArrivalEventHandler(device_OnPacketArrival);
+
+                    // Start capture 'INFINTE' number of packets
+                    // This method will return when EOF reached.
+                    device.Capture();
+
+                    // Close the pcap device
+                    device.Close();
+                }
+                catch (Exception x)
+                {
+                    MessageBox.Show("Exception: " + x.Message, "Exception loading capture file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            if (PacketDataList.Count > 0)
+                firstPacketTime = PacketDataList[0].TimeStamp;
+            return true;
+        }
+
 
         public int Count()
         {
