@@ -7,12 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using PacketViewerLogViewer.Packets;
 using System.Diagnostics;
 using System.IO;
 using PacketViewerLogViewer.ClipboardHelper;
 using SevenZip;
 using System.Reflection;
+using PacketViewerLogViewer.Engine;
+using PacketViewerLogViewer.Engine.Packets;
 
 namespace PacketViewerLogViewer
 {

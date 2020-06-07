@@ -4,97 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.IO;
+using PacketViewerLogViewer.Helpers.CookieAwareWebClient;
 
 namespace PacketViewerLogViewer.PVLVHelper
 {
-
-    public class YoutubeHelperVideoLink
-    {
-        public string VideoURL;
-        public string QualityName;
-    }
-
-    static class YoutubeHelper
-    {
-        static public List<YoutubeHelperVideoLink> GetVideoURLs(string YoutubeURL)
-        {
-            List<YoutubeHelperVideoLink> res = new List<YoutubeHelperVideoLink>();
-            var yt = new YoutubeUrlResolver();
-            var links = yt.Extractor(YoutubeURL);
-            foreach (var link in links)
-            {
-                YoutubeHelperVideoLink vl = new YoutubeHelperVideoLink();
-                vl.VideoURL = link.ElementAt(0);
-                vl.QualityName = link.ElementAt(1);
-                res.Add(vl);
-                //Console.WriteLine(link.ElementAt(0) + "\n"); // url of the video file at a particular resolution
-                //Console.WriteLine(link.ElementAt(1) + "\n\n"); //quality of the video file
-            }
-            return res;
-        }
-    }
-
-    public class YoutubeUrlResolver
-    {
-
-        public List<List<string>> Extractor(string url)
-        {
-
-            var html_content = "";
-            using (var client = new WebClient())
-
-            {
-                client.Headers.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.1 Safari/537.36");
-                html_content += client.DownloadString(url);
-            }
-
-            var Regex1 = new Regex(@"url=(.*?tags=\\u0026)", RegexOptions.Multiline);
-            var matched = Regex1.Match(html_content);
-            var download_infos = new List<List<string>>();
-            foreach (var matched_group in matched.Groups)
-            {
-                var urls = Regex.Split(WebUtility.UrlDecode(matched_group.ToString().Replace("\\u0026", " &")), ",?url=");
-
-                foreach (var vid_url in urls.Skip(1))
-                {
-                    var download_url = vid_url.Split(' ')[0].Split(',')[0].ToString();
-                    Console.WriteLine(download_url);
-
-                    // for quality info of the video
-                    var Regex2 = new Regex("(quality=|quality_label=)(.*?)(,|&| |\")");
-                    var QualityInfo = Regex2.Match(vid_url);
-                    var quality = QualityInfo.Groups[2].ToString(); //quality_info
-                    download_infos.Add((new List<string> { download_url, quality })); //contains url and resolution
-
-                }
-            }
-            return download_infos;
-        }
-
-    }
-
     static class Helper
     {
         private static List<string> ExpectedLogFileRoots = new List<string>() { "packetviewer", "logs", "packetdb", "wireshark", "packeteer", "idview", "raw" , "incoming" , "outgoing" , "in" , "out", "npclogger"  };
         private static List<string> ExpectedLogFolderRootsWithCharacterNames = new List<string>() { "packetviewer", "packetdb", "wireshark", "packeteer", "idview", "npclogger" };
 
         // Source: https://stackoverflow.com/questions/275689/how-to-get-relative-path-from-absolute-path
-        /// <summary>
-        /// Creates a relative path from one file
-        /// or folder to another.
-        /// </summary>
-        /// <param name="fromDirectory">
-        /// Contains the directory that defines the
-        /// start of the relative path.
-        /// </param>
-        /// <param name="toPath">
-        /// Contains the path that defines the
-        /// endpoint of the relative path.
-        /// </param>
-        /// <returns>
-        /// The relative path from the start
-        /// directory to the end path.
-        /// </returns>
+        /// <summary>Creates a relative path from one file or folder to another.</summary>
+        /// <param name="fromDirectory">Contains the directory that defines the start of the relative path.</param>
+        /// <param name="toPath">Contains the path that defines the endpoint of the relative path.</param>
+        /// <returns>The relative path from the start directory to the end path.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public static string MakeRelative(string fromDirectory, string toPath)
         {
@@ -206,11 +129,11 @@ namespace PacketViewerLogViewer.PVLVHelper
                 if (ExpectedLogFileRoots.IndexOf(ldir) >= 0)
                 //if ((ldir == "packetviewer") || (ldir == "logs") || (ldir == "packetdb") || (ldir == "wireshark") || (ldir == "packeteer"))
                 {
-                    res = System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(filename)));
+                    res = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(filename)));
                 }
                 else
                 {
-                    res = System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(filename));
+                    res = Path.GetFileName(Path.GetDirectoryName(filename));
                 }
             }
             else
@@ -226,25 +149,25 @@ namespace PacketViewerLogViewer.PVLVHelper
         public static string MakeProjectDirectoryFromLogFileName_Old(string filename)
         {
             string res;
-            string fnl = System.IO.Path.GetFileNameWithoutExtension(filename).ToLower();
-            string fel = System.IO.Path.GetExtension(filename).ToLower();
+            string fnl = Path.GetFileNameWithoutExtension(filename).ToLower();
+            string fel = Path.GetExtension(filename).ToLower();
             if ((fnl == "full") || (fnl == "incoming") || (fnl == "outgoing") || (fel == ".sqlite"))
             {
-                string ldir = System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(filename)).ToLower();
+                string ldir = Path.GetFileName(Path.GetDirectoryName(filename)).ToLower();
                 // Expected "root" folders of where logs might be stored
                 if (ExpectedLogFileRoots.IndexOf(ldir) >= 0)
                 // if ((ldir == "packetviewer") || (ldir == "logs") || (ldir == "packetdb") || (ldir == "wireshark") || (ldir == "packeteer"))
                 {
-                    res = System.IO.Path.GetDirectoryName(System.IO.Path.GetDirectoryName(filename));
+                    res = Path.GetDirectoryName(Path.GetDirectoryName(filename));
                 }
                 else
                 {
-                    res = System.IO.Path.GetDirectoryName(filename);
+                    res = Path.GetDirectoryName(filename);
                 }
             }
             else
             {
-                res = System.IO.Path.GetDirectoryName(filename);
+                res = Path.GetDirectoryName(filename);
             }
 
             if (!res.EndsWith(Path.DirectorySeparatorChar.ToString()))
@@ -299,8 +222,6 @@ namespace PacketViewerLogViewer.PVLVHelper
 
             return res;
         }
-
-
 
     }
 
@@ -437,91 +358,6 @@ namespace PacketViewerLogViewer.PVLVHelper
             }
 
             return string.Format("https://drive.google.com/uc?id={0}&export=download", url.Substring(index, closingIndex - index));
-        }
-    }
-
-    // Web client used for Google Drive
-    public class CookieAwareWebClient : WebClient
-    {
-        private class CookieContainer
-        {
-            Dictionary<string, string> _cookies;
-
-            public string this[Uri url]
-            {
-                get
-                {
-                    string cookie;
-                    if (_cookies.TryGetValue(url.Host, out cookie))
-                        return cookie;
-
-                    return null;
-                }
-                set
-                {
-                    _cookies[url.Host] = value;
-                }
-            }
-
-            public CookieContainer()
-            {
-                _cookies = new Dictionary<string, string>();
-            }
-        }
-
-        private CookieContainer cookies;
-
-        public CookieAwareWebClient() : base()
-        {
-            cookies = new CookieContainer();
-        }
-
-        protected override WebRequest GetWebRequest(Uri address)
-        {
-            WebRequest request = base.GetWebRequest(address);
-
-            if (request is HttpWebRequest)
-            {
-                string cookie = cookies[address];
-                if (cookie != null)
-                    ((HttpWebRequest)request).Headers.Set("cookie", cookie);
-            }
-
-            return request;
-        }
-
-        protected override WebResponse GetWebResponse(WebRequest request, IAsyncResult result)
-        {
-            WebResponse response = base.GetWebResponse(request, result);
-
-            string[] cookies = response.Headers.GetValues("Set-Cookie");
-            if (cookies != null && cookies.Length > 0)
-            {
-                string cookie = "";
-                foreach (string c in cookies)
-                    cookie += c;
-
-                this.cookies[response.ResponseUri] = cookie;
-            }
-
-            return response;
-        }
-
-        protected override WebResponse GetWebResponse(WebRequest request)
-        {
-            WebResponse response = base.GetWebResponse(request);
-
-            string[] cookies = response.Headers.GetValues("Set-Cookie");
-            if (cookies != null && cookies.Length > 0)
-            {
-                string cookie = "";
-                foreach (string c in cookies)
-                    cookie += c;
-
-                this.cookies[response.ResponseUri] = cookie;
-            }
-
-            return response;
         }
     }
 

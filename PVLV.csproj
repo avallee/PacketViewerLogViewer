@@ -61,6 +61,12 @@
     <ApplicationIcon>Res\ffxi-found-it!.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AngleSharp, Version=0.14.0.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>packages\AngleSharp.0.14.0\lib\net461\AngleSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Data.Sqlite, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Data.Sqlite.Core.3.1.3\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
     </Reference>
@@ -104,6 +110,15 @@
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.CodePages, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Encoding.CodePages.4.5.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Encodings.Web.4.7.0\lib\netstandard2.0\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Json.4.7.1\lib\net461\System.Text.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -157,123 +172,134 @@
     <Reference Include="Vlc.DotNet.Forms, Version=3.0.0.0, Culture=neutral, PublicKeyToken=84529da31f4eb963, processorArchitecture=MSIL">
       <HintPath>packages\Vlc.DotNet.Forms.3.0.0\lib\net45\Vlc.DotNet.Forms.dll</HintPath>
     </Reference>
+    <Reference Include="YoutubeExplode, Version=5.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\YoutubeExplode.5.0.5\lib\net461\YoutubeExplode.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="forms\AboutBoxForm.cs">
+    <Compile Include="Engine\Enums\FilterType.cs" />
+    <Compile Include="Engine\Enums\PacketColors.cs" />
+    <Compile Include="Engine\Enums\PacketLogFileFormats.cs" />
+    <Compile Include="Engine\Enums\PacketLogTypes.cs" />
+    <Compile Include="Forms\AboutBoxForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\AboutBoxForm.Designer.cs">
+    <Compile Include="Forms\AboutBoxForm.Designer.cs">
       <DependentUpon>AboutBoxForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\CompressForm.cs">
+    <Compile Include="Forms\CompressForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\CompressForm.Designer.cs">
+    <Compile Include="Forms\CompressForm.Designer.cs">
       <DependentUpon>CompressForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\GameViewForm.cs">
+    <Compile Include="Forms\GameViewForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\GameViewForm.Designer.cs">
+    <Compile Include="Forms\GameViewForm.Designer.cs">
       <DependentUpon>GameViewForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="helpers\ExportCSVHelper.cs" />
-    <Compile Include="helpers\FFXIEncoding.cs" />
-    <Compile Include="helpers\FFXIEncryption.cs" />
-    <Compile Include="helpers\PacketSpecial.cs" />
-    <Compile Include="helpers\ClipboardHelper.cs" />
-    <Compile Include="helpers\DataLookupDefs.cs" />
-    <Compile Include="helpers\FileExtHelper.cs" />
-    <Compile Include="forms\ParseEditorForm.cs">
+    <Compile Include="Helpers\CookieAwareWebClient\CookieAwareWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Helpers\ExportCSVHelper.cs" />
+    <Compile Include="Helpers\FFXI\FFXIEncoding.cs" />
+    <Compile Include="Helpers\FFXI\FFXIEncryption.cs" />
+    <Compile Include="Helpers\PacketSpecial.cs" />
+    <Compile Include="Helpers\ClipboardHelper.cs" />
+    <Compile Include="Engine\Base\DataLookupDefs.cs" />
+    <Compile Include="Helpers\FileExtHelper.cs" />
+    <Compile Include="Forms\ParseEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\ParseEditorForm.Designer.cs">
+    <Compile Include="Forms\ParseEditorForm.Designer.cs">
       <DependentUpon>ParseEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\ProjectInfoForm.cs">
+    <Compile Include="Forms\ProjectInfoForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\ProjectInfoForm.Designer.cs">
+    <Compile Include="Forms\ProjectInfoForm.Designer.cs">
       <DependentUpon>ProjectInfoForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\SearchForm.cs">
+    <Compile Include="Forms\SearchForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\SearchForm.Designer.cs">
+    <Compile Include="Forms\SearchForm.Designer.cs">
       <DependentUpon>SearchForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\LoadingForm.cs">
+    <Compile Include="Forms\LoadingForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\LoadingForm.Designer.cs">
+    <Compile Include="Forms\LoadingForm.Designer.cs">
       <DependentUpon>LoadingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="helpers\FFXIHelper.cs" />
+    <Compile Include="Helpers\FFXI\FFXIHelper.cs" />
+    <Compile Include="Helpers\YouTube\YoutubeHelper.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="helpers\PacketDefs.cs" />
-    <Compile Include="helpers\PacketParsers.cs" />
-    <Compile Include="forms\PacketTypeSelectForm.cs">
+    <Compile Include="Engine\Base\PacketDefs.cs" />
+    <Compile Include="Helpers\PacketParsers.cs" />
+    <Compile Include="Forms\PacketTypeSelectForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\PacketTypeSelectForm.Designer.cs">
+    <Compile Include="Forms\PacketTypeSelectForm.Designer.cs">
       <DependentUpon>PacketTypeSelectForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\FilterForm.cs">
+    <Compile Include="Forms\FilterForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\FilterForm.Designer.cs">
+    <Compile Include="Forms\FilterForm.Designer.cs">
       <DependentUpon>FilterForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="forms\SettingsForm.cs">
+    <Compile Include="Forms\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\SettingsForm.Designer.cs">
+    <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="helpers\VanaTime.cs" />
-    <Compile Include="forms\VideoLinkForm.cs">
+    <Compile Include="Helpers\FFXI\VanaTime.cs" />
+    <Compile Include="Forms\VideoLinkForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="forms\VideoLinkForm.Designer.cs">
+    <Compile Include="Forms\VideoLinkForm.Designer.cs">
       <DependentUpon>VideoLinkForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="helpers\PVLVHelper.cs" />
-    <EmbeddedResource Include="forms\AboutBoxForm.resx">
+    <Compile Include="Helpers\PVLVHelper.cs" />
+    <EmbeddedResource Include="Forms\AboutBoxForm.resx">
       <DependentUpon>AboutBoxForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\CompressForm.resx">
+    <EmbeddedResource Include="Forms\CompressForm.resx">
       <DependentUpon>CompressForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\GameViewForm.resx">
+    <EmbeddedResource Include="Forms\GameViewForm.resx">
       <DependentUpon>GameViewForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\ParseEditorForm.resx">
+    <EmbeddedResource Include="Forms\ParseEditorForm.resx">
       <DependentUpon>ParseEditorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\ProjectInfoForm.resx">
+    <EmbeddedResource Include="Forms\ProjectInfoForm.resx">
       <DependentUpon>ProjectInfoForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\SearchForm.resx">
+    <EmbeddedResource Include="Forms\SearchForm.resx">
       <DependentUpon>SearchForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\LoadingForm.resx">
+    <EmbeddedResource Include="Forms\LoadingForm.resx">
       <DependentUpon>LoadingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\PacketTypeSelectForm.resx">
+    <EmbeddedResource Include="Forms\PacketTypeSelectForm.resx">
       <DependentUpon>PacketTypeSelectForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\FilterForm.resx">
+    <EmbeddedResource Include="Forms\FilterForm.resx">
       <DependentUpon>FilterForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -286,10 +312,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="forms\SettingsForm.resx">
+    <EmbeddedResource Include="Forms\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="forms\VideoLinkForm.resx">
+    <EmbeddedResource Include="Forms\VideoLinkForm.resx">
       <DependentUpon>VideoLinkForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="data\filter\hide movement.pfl">
@@ -892,6 +918,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Engine\FFXI\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

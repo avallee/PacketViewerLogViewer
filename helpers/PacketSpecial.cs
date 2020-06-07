@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PacketViewerLogViewer.Packets;
+using PacketViewerLogViewer.Engine.Packets;
 
 namespace PacketViewerLogViewer.PacketSpecial
 {

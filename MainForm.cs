@@ -8,13 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-using PacketViewerLogViewer.Packets;
 using System.IO;
 using PacketViewerLogViewer.ClipboardHelper;
 using PacketViewerLogViewer.PVLVHelper;
 using PacketViewerLogViewer.FileExtHelper;
 using PacketViewerLogViewer.FFXIUtils;
-using PacketViewerLogViewer.helpers;
+using PacketViewerLogViewer.Helpers;
+using PacketViewerLogViewer.Engine;
+using PacketViewerLogViewer.Engine.Enums;
+using PacketViewerLogViewer.Engine.Packets;
 
 namespace PacketViewerLogViewer
 {

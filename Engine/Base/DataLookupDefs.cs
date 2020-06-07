@@ -7,8 +7,9 @@ using System.IO;
 using System.Windows.Forms;
 using System.Globalization;
 using PacketViewerLogViewer.FFXIUtils;
+using PacketViewerLogViewer.Engine.Enums;
 
-namespace PacketViewerLogViewer.Packets
+namespace PacketViewerLogViewer.Engine
 {
     public struct DataLookupEntry
     {
@@ -182,9 +183,6 @@ namespace PacketViewerLogViewer.Packets
         }
 
     }
-
-
-
 
     static public class DataLookups
     {
@@ -360,7 +358,6 @@ namespace PacketViewerLogViewer.Packets
                 res *= -1;
             return result;
         }
-
 
         public static bool TryFieldParseUInt64(string field, out UInt64 res)
         {

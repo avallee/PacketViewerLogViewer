@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
-using PacketViewerLogViewer.Packets;
 using Vanadiel.Time;
+using PacketViewerLogViewer.Engine;
+using PacketViewerLogViewer.Engine.Enums;
+using PacketViewerLogViewer.Engine.Packets;
 
 namespace PacketViewerLogViewer
 {
